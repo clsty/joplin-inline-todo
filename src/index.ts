@@ -180,7 +180,7 @@ joplin.plugins.register({
 				
 				// Only refresh if the note actually has a query summary block
 				if (!hasQuerySummary(currentNote.body)) {
-					console.warn("Cannot refresh: current note is not a query summary note");
+					logger.warn("Cannot refresh: current note is not a query summary note");
 					return;
 				}
 				
@@ -240,7 +240,7 @@ joplin.plugins.register({
 		const refreshQuerySummaryNote = async (noteId: string, noteBody: string) => {
 			// Ensure the note actually has a query summary block before refreshing
 			if (!hasQuerySummary(noteBody)) {
-				console.warn(`Cannot refresh note ${noteId}: not a query summary note`);
+				logger.warn(`Cannot refresh note ${noteId}: not a query summary note`);
 				return;
 			}
 			await builder.search_in_all();
