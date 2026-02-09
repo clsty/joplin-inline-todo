@@ -244,32 +244,8 @@ joplin.plugins.register({
 			);
 		}
 
-		// Add refresh command for query summaries
-		await joplin.commands.register({
-			name: "inlineTodo.refreshQuerySummary",
-			label: "Refresh Query Summary",
-			iconName: "fas fa-sync-alt",
-			execute: async () => {
-				const currentNote = await joplin.workspace.selectedNote();
-				if (!currentNote) return;
-				
-				// Only refresh if this is a query summary note
-				if (!hasQuerySummary(currentNote.body)) {
-					return;
-				}
-				
-				await builder.search_in_all();
-				await update_summary(builder.summary, builder.settings, currentNote.id, currentNote.body);
-			}
-		});
-
-		// Create toolbar button for query summaries in the editor toolbar
-		// Note: The button will be visible on all notes, but only functional on query summary notes
-		await joplin.views.toolbarButtons.create(
-			"refreshQuerySummaryToolbarButton",
-			"inlineTodo.refreshQuerySummary",
-			ToolbarButtonLocation.EditorToolbar
-		);
+		// Note: Query summaries use the refresh button in the custom editor UI
+		// No separate toolbar button is needed
 
 		await joplin.settings.onChange(async (_) => {
 			builder.settings = await getSettings();
