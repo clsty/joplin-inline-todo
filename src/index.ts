@@ -33,7 +33,7 @@ async function getSettings(): Promise<Settings> {
 
 joplin.plugins.register({
 	onStart: async function() {
-		await joplin.settings.registerSection('settings.calebjohn.todo', {
+		await joplin.settings.registerSection('settings.clsty.querytodo', {
 			label: 'Query TODO',
 			iconName: 'fa fa-check'
 		});
@@ -43,7 +43,7 @@ joplin.plugins.register({
 				type: SettingItemType.String,
 				isEnum: true,
 				options: regexTitles,
-				section: 'settings.calebjohn.todo',
+				section: 'settings.clsty.querytodo',
 				public: true,
 				label: 'Choose the inline TODO style (default is recommended)',
 			},
@@ -52,7 +52,7 @@ joplin.plugins.register({
 				type: SettingItemType.String,
 				isEnum: true,
 				options: summaryTitles,
-				section: 'settings.calebjohn.todo',
+				section: 'settings.clsty.querytodo',
 				public: true,
 				label: 'Choose a Summary Note Format. Check the project page for examples',
 			},
@@ -64,14 +64,14 @@ joplin.plugins.register({
 					'category': 'Category (Default)',
 					'date': 'Due Date'
 				},
-				section: 'settings.calebjohn.todo',
+				section: 'settings.clsty.querytodo',
 				public: true,
 				label: 'Sort table display TODOs by',
 			},
 			'scanPeriod': {
 				value: 11,
 				type: SettingItemType.Int,
-				section: 'settings.calebjohn.todo',
+				section: 'settings.clsty.querytodo',
 				public: true,
 				advanced: true,
 				minimum: 0,
@@ -82,7 +82,7 @@ joplin.plugins.register({
 			'scanPeriodRequestCount': {
 				value: 960,
 				type: SettingItemType.Int,
-				section: 'settings.calebjohn.todo',
+				section: 'settings.clsty.querytodo',
 				public: true,
 				advanced: true,
 				minimum: 1,
@@ -93,7 +93,7 @@ joplin.plugins.register({
 			'styleConfluenceTodos': {
 				value: true,
 				type: SettingItemType.Bool,
-				section: 'settings.calebjohn.todo',
+				section: 'settings.clsty.querytodo',
 				public: true,
 				advanced: true,
 				label: 'Apply styling to metalist style todos in the markdown renderer (Restart Required)',
@@ -101,7 +101,7 @@ joplin.plugins.register({
 			'forceSync': {
 				value: true,
 				type: SettingItemType.Bool,
-				section: 'settings.calebjohn.todo',
+				section: 'settings.clsty.querytodo',
 				public: true,
 				advanced: true,
 				label: 'Force sync after summary note update (Important: do not un-check this)',
@@ -109,7 +109,7 @@ joplin.plugins.register({
 			'showCompletetodoitems': {
 				value: false,
 				type: SettingItemType.Bool,
-				section: 'settings.calebjohn.todo',
+				section: 'settings.clsty.querytodo',
 				public: true,
 				advanced: true,
 				label: 'Include complete TODO items in TODO summary (it might take long time/long list)',
@@ -117,7 +117,7 @@ joplin.plugins.register({
 			'autoRefreshSummary': {
 				value: true,
 				type: SettingItemType.Bool,
-				section: 'settings.calebjohn.todo',
+				section: 'settings.clsty.querytodo',
 				public: true,
 				advanced: true,
 				label: 'Refresh Summary note when opening the note.',
@@ -125,7 +125,7 @@ joplin.plugins.register({
 			'enableCustomEditor': {
 				value: false,
 				type: SettingItemType.Bool,
-				section: 'settings.calebjohn.todo',
+				section: 'settings.clsty.querytodo',
 				public: true,
 				label: 'Enable custom editor for summary notes',
 			},
@@ -345,8 +345,8 @@ joplin.plugins.register({
 					const config = parseQuerySummary(currentNote.body);
 					
 					if (config) {
-						// Handle openReload
-						if (config.openReload !== false) { // default is true
+						// Handle openReload (default is false)
+						if (config.openReload === true) {
 							await refreshQuerySummaryNote(currentNote.id, currentNote.body);
 						}
 						
