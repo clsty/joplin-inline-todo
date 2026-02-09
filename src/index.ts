@@ -6,8 +6,9 @@ import { Settings } from './types';
 import { update_summary } from './summary';
 import { mark_current_line_as_done } from './mark_todo';
 import { regexes, regexTitles, summaryTitles } from './settings_tables';
-import { createSummaryNote, isSummary } from './summary_note';
+import { createSummaryNote, createQuerySummaryNote, isSummary } from './summary_note';
 import { registerEditor } from './editor';
+import { hasQuerySummary, parseQuerySummary } from './query_summary';
 
 const globalLogger = new Logger();
 globalLogger.addTarget(TargetType.Console);
@@ -32,8 +33,8 @@ async function getSettings(): Promise<Settings> {
 
 joplin.plugins.register({
 	onStart: async function() {
-		await joplin.settings.registerSection('settings.calebjohn.todo', {
-			label: 'Inline TODO',
+		await joplin.settings.registerSection('settings.clsty.querytodo', {
+			label: 'Query TODO',
 			iconName: 'fa fa-check'
 		});
 		await joplin.settings.registerSettings({
@@ -42,7 +43,7 @@ joplin.plugins.register({
 				type: SettingItemType.String,
 				isEnum: true,
 				options: regexTitles,
-				section: 'settings.calebjohn.todo',
+				section: 'settings.clsty.querytodo',
 				public: true,
 				label: 'Choose the inline TODO style (default is recommended)',
 			},
@@ -51,7 +52,7 @@ joplin.plugins.register({
 				type: SettingItemType.String,
 				isEnum: true,
 				options: summaryTitles,
-				section: 'settings.calebjohn.todo',
+				section: 'settings.clsty.querytodo',
 				public: true,
 				label: 'Choose a Summary Note Format. Check the project page for examples',
 			},
@@ -63,14 +64,14 @@ joplin.plugins.register({
 					'category': 'Category (Default)',
 					'date': 'Due Date'
 				},
-				section: 'settings.calebjohn.todo',
+				section: 'settings.clsty.querytodo',
 				public: true,
 				label: 'Sort table display TODOs by',
 			},
 			'scanPeriod': {
 				value: 11,
 				type: SettingItemType.Int,
-				section: 'settings.calebjohn.todo',
+				section: 'settings.clsty.querytodo',
 				public: true,
 				advanced: true,
 				minimum: 0,
@@ -81,7 +82,7 @@ joplin.plugins.register({
 			'scanPeriodRequestCount': {
 				value: 960,
 				type: SettingItemType.Int,
-				section: 'settings.calebjohn.todo',
+				section: 'settings.clsty.querytodo',
 				public: true,
 				advanced: true,
 				minimum: 1,
@@ -92,7 +93,7 @@ joplin.plugins.register({
 			'styleConfluenceTodos': {
 				value: true,
 				type: SettingItemType.Bool,
-				section: 'settings.calebjohn.todo',
+				section: 'settings.clsty.querytodo',
 				public: true,
 				advanced: true,
 				label: 'Apply styling to metalist style todos in the markdown renderer (Restart Required)',
@@ -100,7 +101,7 @@ joplin.plugins.register({
 			'forceSync': {
 				value: true,
 				type: SettingItemType.Bool,
-				section: 'settings.calebjohn.todo',
+				section: 'settings.clsty.querytodo',
 				public: true,
 				advanced: true,
 				label: 'Force sync after summary note update (Important: do not un-check this)',
@@ -108,7 +109,7 @@ joplin.plugins.register({
 			'showCompletetodoitems': {
 				value: false,
 				type: SettingItemType.Bool,
-				section: 'settings.calebjohn.todo',
+				section: 'settings.clsty.querytodo',
 				public: true,
 				advanced: true,
 				label: 'Include complete TODO items in TODO summary (it might take long time/long list)',
@@ -116,7 +117,7 @@ joplin.plugins.register({
 			'autoRefreshSummary': {
 				value: true,
 				type: SettingItemType.Bool,
-				section: 'settings.calebjohn.todo',
+				section: 'settings.clsty.querytodo',
 				public: true,
 				advanced: true,
 				label: 'Refresh Summary note when opening the note.',
@@ -124,7 +125,7 @@ joplin.plugins.register({
 			'enableCustomEditor': {
 				value: false,
 				type: SettingItemType.Bool,
-				section: 'settings.calebjohn.todo',
+				section: 'settings.clsty.querytodo',
 				public: true,
 				label: 'Enable custom editor for summary notes',
 			},
@@ -151,6 +152,20 @@ joplin.plugins.register({
 		await joplin.views.menuItems.create(
 			"createSummaryNoteMenuTools",
 			"inlineTodo.createSummaryNote",
+			MenuItemLocation.Tools
+		);
+
+		await joplin.commands.register({
+			name: "inlineTodo.createQuerySummaryNote",
+			label: "Create Query summary note",
+			execute: async () => {
+				await createQuerySummaryNote();
+			},
+		});
+
+		await joplin.views.menuItems.create(
+			"createQuerySummaryNoteMenuTools",
+			"inlineTodo.createQuerySummaryNote",
 			MenuItemLocation.Tools
 		);
 
@@ -229,16 +244,128 @@ joplin.plugins.register({
 			);
 		}
 
+		// Add refresh command for query summaries
+		await joplin.commands.register({
+			name: "inlineTodo.refreshQuerySummary",
+			label: "Refresh Query Summary",
+			iconName: "fas fa-sync-alt",
+			execute: async () => {
+				const currentNote = await joplin.workspace.selectedNote();
+				if (!currentNote) return;
+				
+				await builder.search_in_all();
+				await update_summary(builder.summary, builder.settings, currentNote.id, currentNote.body);
+			}
+		});
+
+		// Create toolbar button for query summaries - visibility will be controlled dynamically
+		await joplin.views.toolbarButtons.create(
+			"refreshQuerySummaryToolbarButton",
+			"inlineTodo.refreshQuerySummary",
+			ToolbarButtonLocation.EditorToolbar
+		);
+
+		// Function to update toolbar button visibility
+		const updateToolbarVisibility = async () => {
+			const currentNote = await joplin.workspace.selectedNote();
+			if (currentNote) {
+				try {
+					const note = await joplin.data.get(['notes', currentNote.id], { fields: ['body'] });
+					const isQuerySummary = hasQuerySummary(note.body);
+					// Show query button only for query summaries
+					await joplin.views.toolbarButtons.setProperty(
+						"refreshQuerySummaryToolbarButton",
+						"visible",
+						isQuerySummary
+					);
+				} catch (error) {
+					// Note might not exist or error accessing it
+					await joplin.views.toolbarButtons.setProperty(
+						"refreshQuerySummaryToolbarButton",
+						"visible",
+						false
+					);
+				}
+			} else {
+				await joplin.views.toolbarButtons.setProperty(
+					"refreshQuerySummaryToolbarButton",
+					"visible",
+					false
+				);
+			}
+		};
+
+		// Initial visibility check
+		await updateToolbarVisibility();
+
 		await joplin.settings.onChange(async (_) => {
 			builder.settings = await getSettings();
 		});
 
+		// Track periodic reload timers for query summaries
+		const reloadTimers: Map<string, NodeJS.Timeout> = new Map();
+
+		// Helper function to refresh a query summary note
+		const refreshQuerySummaryNote = async (noteId: string, noteBody: string) => {
+			await builder.search_in_all();
+			await update_summary(builder.summary, builder.settings, noteId, noteBody);
+		};
+
+		// Helper function to setup periodic reload for a query summary
+		const setupPeriodicReload = (noteId: string, noteBody: string, periodSeconds: number) => {
+			// Clear existing timer if any
+			if (reloadTimers.has(noteId)) {
+				clearInterval(reloadTimers.get(noteId)!);
+			}
+			
+			if (periodSeconds > 0) {
+				const timer = setInterval(async () => {
+					try {
+						// Get fresh note body in case it changed
+						const note = await joplin.data.get(['notes', noteId], { fields: ['body'] });
+						await refreshQuerySummaryNote(noteId, note.body);
+					} catch (error) {
+						console.error('Error in periodic reload:', error);
+					}
+				}, periodSeconds * 1000);
+				
+				reloadTimers.set(noteId, timer);
+			}
+		};
+
 		await joplin.workspace.onNoteSelectionChange(async () => {
 			const currentNote = await joplin.workspace.selectedNote();
 
-			if (currentNote && builder.settings.auto_refresh_summary && isSummary(currentNote)) {
-				await builder.search_in_all();
-				update_summary(builder.summary, builder.settings, currentNote.id, currentNote.body);
+			// Update toolbar button visibility
+			await updateToolbarVisibility();
+
+			if (currentNote) {
+				// Check if it's a query summary note
+				if (hasQuerySummary(currentNote.body)) {
+					const config = parseQuerySummary(currentNote.body);
+					
+					if (config) {
+						// Handle openReload (default is false)
+						if (config.openReload === true) {
+							await refreshQuerySummaryNote(currentNote.id, currentNote.body);
+						}
+						
+						// Setup periodic reload if configured
+						if (config.reloadPeriodSecond && config.reloadPeriodSecond > 0) {
+							setupPeriodicReload(currentNote.id, currentNote.body, config.reloadPeriodSecond);
+						} else {
+							// Clear any existing timer for this note
+							if (reloadTimers.has(currentNote.id)) {
+								clearInterval(reloadTimers.get(currentNote.id)!);
+								reloadTimers.delete(currentNote.id);
+							}
+						}
+					}
+				} else if (builder.settings.auto_refresh_summary && isSummary(currentNote)) {
+					// Regular summary note behavior
+					await builder.search_in_all();
+					update_summary(builder.summary, builder.settings, currentNote.id, currentNote.body);
+				}
 			}
 		});
 

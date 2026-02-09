@@ -1,5 +1,6 @@
 import joplin from 'api';
 import { Note, Summary, SummaryMap } from './types';
+import { hasQuerySummary } from './query_summary';
 
 const summary_regex = /<!-- inline-todo-plugin(.*)-->/gm;
 
@@ -20,6 +21,36 @@ export async function createSummaryNote() {
 				console.error(error);
 				console.warn("Could not create summary note with api in notebook: " + par.id);
 			});
+}
+
+export async function createQuerySummaryNote() {
+	const par = await joplin.workspace.selectedFolder();
+	if (!par) {
+		console.error("Cannot create query summary note: no folder selected");
+		return;
+	}
+	
+	const defaultQueryBody = `\`\`\`json:query-summary
+{
+	"query": {
+		"STATUS": "open"
+	},
+	"entryFormat": "- {{{STATUS}}} {{{CATEGORY}}} {{{TAGS}}} {{{DATE}}} {{{CONTENT}}} [origin](:/{{{NOTE_ID}}})",
+	"openReload": false,
+	"reloadPeriodSecond": 0,
+	"forceSyncWhenReload": true
+}
+\`\`\`
+`;
+	
+	await joplin.data.post(['notes'], null, {
+		title: 'Query Summary', 
+		parent_id: par.id, 
+		body: defaultQueryBody
+	}).catch((error) => {
+		console.error(error);
+		console.warn("Could not create query summary note with api in notebook: " + par.id);
+	});
 }
 
 export function insertNewSummary(old_body: string, summaryBody: string): string {
@@ -87,5 +118,6 @@ function parseNotebookNames(nbs: string): string[] {
 }
 
 export function isSummary(currentNote: Note): boolean {
-	return !!currentNote?.body.match(summary_regex);
+	// Check for either regular summary or query summary
+	return !!currentNote?.body.match(summary_regex) || hasQuerySummary(currentNote?.body);
 }
