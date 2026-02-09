@@ -256,26 +256,26 @@ joplin.plugins.register({
 		};
 
 		await joplin.settings.onChange(async (event) => {
-			console.log('[QueryTODO] Settings changed:', event.keys.join(', '));
+			// console.log('[QueryTODO] Settings changed:', event.keys.join(', '));
 			builder.settings = await getSettings();
 			
 			// If reload-related settings changed, update the current note's reload behavior
 			if (event.keys.includes('openReload') || event.keys.includes('reloadPeriodSecond')) {
-				console.log('[QueryTODO] Reload settings changed, updating current note behavior');
+				// console.log('[QueryTODO] Reload settings changed, updating current note behavior');
 				const currentNote = await joplin.workspace.selectedNote();
 				if (currentNote && hasQuerySummary(currentNote.body)) {
 					// Use the already updated builder.settings
 					const settings = builder.settings;
-					console.log('[QueryTODO] New settings - openReload:', settings.open_reload, 'reloadPeriod:', settings.reload_period_second);
+					// console.log('[QueryTODO] New settings - openReload:', settings.open_reload, 'reloadPeriod:', settings.reload_period_second);
 					
 					// Update periodic reload if configured
 					if (settings.reload_period_second && settings.reload_period_second > 0) {
-						console.log('[QueryTODO] Setting up periodic reload every', settings.reload_period_second, 'seconds');
+						// console.log('[QueryTODO] Setting up periodic reload every', settings.reload_period_second, 'seconds');
 						setupPeriodicReload(currentNote.id, currentNote.body, settings.reload_period_second);
 					} else {
 						// Clear any existing timer for this note
 						if (reloadTimers.has(currentNote.id)) {
-							console.log('[QueryTODO] Clearing existing timer');
+							// console.log('[QueryTODO] Clearing existing timer');
 							clearInterval(reloadTimers.get(currentNote.id)!);
 							reloadTimers.delete(currentNote.id);
 						}
@@ -285,33 +285,33 @@ joplin.plugins.register({
 		});
 
 		joplin.workspace.onNoteSelectionChange(async () => {
-			console.log('[QueryTODO] Note selection changed - handler triggered');
+			// console.log('[QueryTODO] Note selection changed - handler triggered');
 			const currentNote = await joplin.workspace.selectedNote();
-			console.log('[QueryTODO] Current note:', currentNote ? currentNote.id : 'none');
+			// console.log('[QueryTODO] Current note:', currentNote ? currentNote.id : 'none');
 
 			if (currentNote) {
 				// Check if it's a query summary note
 				const hasQuery = hasQuerySummary(currentNote.body);
-				console.log('[QueryTODO] Note has query summary:', hasQuery);
+				// console.log('[QueryTODO] Note has query summary:', hasQuery);
 				
 				if (hasQuery) {
 					const settings = await getSettings();
-					console.log('[QueryTODO] Settings - openReload:', settings.open_reload, 'reloadPeriod:', settings.reload_period_second);
+					// console.log('[QueryTODO] Settings - openReload:', settings.open_reload, 'reloadPeriod:', settings.reload_period_second);
 					
 					// Handle openReload (default is false)
 					if (settings.open_reload === true) {
-						console.log('[QueryTODO] Triggering refresh on note open');
+						// console.log('[QueryTODO] Triggering refresh on note open');
 						await refreshQuerySummaryNote(currentNote.id, currentNote.body);
 					}
 					
 					// Setup periodic reload if configured
 					if (settings.reload_period_second && settings.reload_period_second > 0) {
-						console.log('[QueryTODO] Setting up periodic reload every', settings.reload_period_second, 'seconds');
+						// console.log('[QueryTODO] Setting up periodic reload every', settings.reload_period_second, 'seconds');
 						setupPeriodicReload(currentNote.id, currentNote.body, settings.reload_period_second);
 					} else {
 						// Clear any existing timer for this note
 						if (reloadTimers.has(currentNote.id)) {
-							console.log('[QueryTODO] Clearing existing timer');
+							// console.log('[QueryTODO] Clearing existing timer');
 							clearInterval(reloadTimers.get(currentNote.id)!);
 							reloadTimers.delete(currentNote.id);
 						}
@@ -319,7 +319,7 @@ joplin.plugins.register({
 				} else {
 					// Clear any existing timer if the note is not a query summary
 					if (reloadTimers.has(currentNote.id)) {
-						console.log('[QueryTODO] Clearing timer for non-query note');
+						// console.log('[QueryTODO] Clearing timer for non-query note');
 						clearInterval(reloadTimers.get(currentNote.id)!);
 						reloadTimers.delete(currentNote.id);
 					}

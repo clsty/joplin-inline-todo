@@ -8,15 +8,14 @@ Advanced TODO management for Joplin with JSON-based query summaries, filtering, 
 - **Query-based summaries** with JSON configuration for advanced filtering
 - **Multi-level sorting and grouping** with custom sort orders
 - **Customizable entry format** with template placeholders
-- **Auto-reload** with configurable intervals
-- **Multiple summary types** including regular summaries and query summaries
+- **Auto-reload** configurable in plugin settings
 
 ## Installation
 
 1. Go to `Tools -> Options -> Plugins` (macOS: Joplin -> Preferences -> Plugins)
 2. Search for "Query TODO"
 3. Click Install and restart Joplin
-4. Create a summary note: `Tools -> Create TODO summary note` or `Tools -> Create Query summary note`
+4. Create a query summary note: `Tools -> Create Query summary note`
 
 ## Quick Start
 
@@ -32,15 +31,6 @@ Components:
 - `+tag` - Multiple tags (optional)
 - `//YYYY-MM-DD` - Due date (optional)  
 - Checkbox state: `[ ]` = open, `[x]` = done
-
-### Regular Summary Note
-
-Create with `Tools -> Create TODO summary note`:
-```markdown
-<!-- inline-todo-plugin -->
-```
-
-Automatically shows all TODOs from all notes.
 
 ### Query Summary Note
 
@@ -62,8 +52,7 @@ Create with `Tools -> Create Query summary note`:
     }
   ],
   "groupLevel": 1,
-  "entryFormat": "- {{{STATUS}}} {{{CATEGORY}}} {{{TAGS}}} {{{CONTENT}}} [link](:/{{{NOTE_ID}}})",
-  "forceSyncWhenReload": true
+  "entryFormat": "- {{{STATUS}}} {{{CATEGORY}}} {{{TAGS}}} {{{CONTENT}}} [link](:/{{{NOTE_ID}}})"
 }
 ```
 ````
@@ -102,14 +91,21 @@ Customize TODO display with placeholders:
 - `{{{NOTE_TITLE}}}` - Source note title
 - `{{{NOTEBOOK}}}` - Parent notebook name
 
-### Auto-Reload
+## Plugin Settings
 
-Auto-reload settings have been moved to plugin settings (Tools -> Options -> Query TODO). These settings apply to all query summary notes:
+Access via `Tools -> Options -> Query TODO`
 
-- **Refresh query summary notes when opening them** (default: false) - Automatically refresh the TODO list when you open a query summary note
-- **Auto-refresh query summary notes every N seconds** (default: 0 = disabled) - Set an interval in seconds to automatically refresh query summary notes
+### Basic Settings
+- **TODO Style** - Choose metalist, link, or plain style
+- **Summary Format** - Choose display format (plain, table, diary)
+- **Sort By** - Default sort order (Category or Due Date)
 
-Note: `forceSyncWhenReload` can still be set in individual note configurations (default: true).
+### Advanced Settings
+- **Refresh query summary notes when opening them** - Auto-refresh on note selection (default: false)
+- **Auto-refresh query summary notes every N seconds** - Periodic auto-refresh (default: 0 = disabled, max: 86400)
+- **Scan Period** - Seconds between scanning bursts (default: 11)
+- **Force sync after summary update** - Important for data consistency (default: true)
+- **Include completed TODOs** - Show done items in summary (default: false)
 
 ## Examples
 
@@ -164,22 +160,12 @@ Note: `forceSyncWhenReload` can still be set in individual note configurations (
 }
 ```
 
-## Settings
-
-Access via `Tools -> Options -> Query TODO`
-
-- **TODO Style** - Choose metalist, link, or plain style
-- **Summary Format** - Choose display format (list, table, diary)
-- **Sort By** - Default sort order
-- **Auto Refresh** - Refresh summary when opening notes
-- **Custom Editor** - Use custom summary editor UI
-
 ## Notes
 
+- TODOs must include a category (`@category`) to be detected by the plugin
 - Summary notes are excluded from TODO extraction to prevent self-referencing
-- The toolbar refresh button (🔄) only appears for query summary notes
-- Regular summaries use global settings, query summaries use per-note JSON config
-- TODOs without special fields (@, +, //) won't be detected
+- Use the toolbar refresh button (🔄) or menu item to manually refresh summaries
+- Auto-reload settings in plugin preferences apply to all query summary notes
 
 ## License
 
