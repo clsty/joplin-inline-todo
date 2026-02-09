@@ -130,7 +130,7 @@ joplin.plugins.register({
 				public: true,
 				advanced: true,
 				minimum: 0,
-				maximum: 3600,
+				maximum: 86400,
 				step: 1,
 				label: 'Auto-refresh query summary notes every N seconds (0 = disabled)',
 			},
