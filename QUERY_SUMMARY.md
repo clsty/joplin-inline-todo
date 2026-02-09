@@ -8,7 +8,7 @@ The Query Summary Note feature extends the Joplin Inline TODO plugin with advanc
 
 To create a query summary note, add a JSON code block with the special tag `json:query-summary` to your note:
 
-\`\`\`markdown
+```markdown
 \`\`\`json:query-summary
 {
   "query": {
@@ -24,7 +24,7 @@ To create a query summary note, add a JSON code block with the special tag `json
   "groupLevel": 1
 }
 \`\`\`
-\`\`\`
+```
 
 The plugin will automatically detect this format and generate the summary based on your query configuration.
 
@@ -34,17 +34,17 @@ The plugin will automatically detect this format and generate the summary based 
 
 Match TODOs by category (e.g., `@work`, `@personal`):
 
-\`\`\`json
+```json
 {
   "CATEGORY": "work",
   "negated": false
 }
-\`\`\`
+```
 
 Example matching TODO:
-\`\`\`markdown
+```markdown
 - [ ] @work Complete the project report
-\`\`\`
+```
 
 ### TAG Query
 
@@ -55,23 +55,23 @@ Match TODOs that contain specific tags (e.g., `+urgent`, `+health`):
   "TAG": "urgent",
   "negated": false
 }
-\`\`\`
+```
 
 Example matching TODO:
-\`\`\`markdown
+```markdown
 - [ ] @work +urgent +important Finish presentation
-\`\`\`
+```
 
 ### NOTE Query
 
 Match TODOs from a specific note by its ID:
 
-\`\`\`json
+```json
 {
   "NOTE": "2c34493c934c4a7da846fc30850bc8ce",
   "negated": false
 }
-\`\`\`
+```
 
 The note ID is the same as the one used in Joplin's external links.
 
@@ -79,13 +79,13 @@ The note ID is the same as the one used in Joplin's external links.
 
 Match TODOs from a specific notebook by its ID:
 
-\`\`\`json
+```json
 {
   "NOTEBOOK": "82c9a115561e4d21823183daaea32f86",
   "recursive": false,
   "negated": false
 }
-\`\`\`
+```
 
 - `recursive`: When `true`, includes TODOs from child notebooks as well
 - The notebook ID is the same as the one used in Joplin's external links
@@ -94,12 +94,12 @@ Match TODOs from a specific notebook by its ID:
 
 Match TODOs by their completion status (following XIT standard):
 
-\`\`\`json
+```json
 {
   "STATUS": "open",
   "negated": false
 }
-\`\`\`
+```
 
 Supported statuses:
 - `open`: Incomplete TODOs (`- [ ]`)
@@ -109,7 +109,7 @@ Supported statuses:
 
 Combine multiple queries with AND logic (all conditions must match):
 
-\`\`\`json
+```json
 {
   "AND": [
     {"CATEGORY": "work"},
@@ -117,7 +117,7 @@ Combine multiple queries with AND logic (all conditions must match):
     {"STATUS": "open"}
   ]
 }
-\`\`\`
+```
 
 This matches TODOs that are in the "work" category, have the "urgent" tag, AND are open.
 
@@ -125,14 +125,14 @@ This matches TODOs that are in the "work" category, have the "urgent" tag, AND a
 
 Combine multiple queries with OR logic (at least one condition must match):
 
-\`\`\`json
+```json
 {
   "OR": [
     {"CATEGORY": "work"},
     {"CATEGORY": "personal"}
   ]
 }
-\`\`\`
+```
 
 This matches TODOs that are either in the "work" category OR the "personal" category.
 
@@ -140,12 +140,12 @@ This matches TODOs that are either in the "work" category OR the "personal" cate
 
 All query types support the `negated` option to invert the match:
 
-\`\`\`json
+```json
 {
   "CATEGORY": "work",
   "negated": true
 }
-\`\`\`
+```
 
 This matches all TODOs that are NOT in the "work" category.
 
@@ -153,7 +153,7 @@ This matches all TODOs that are NOT in the "work" category.
 
 You can nest AND and OR queries for complex logic:
 
-\`\`\`json
+```json
 {
   "AND": [
     {
@@ -166,7 +166,7 @@ You can nest AND and OR queries for complex logic:
     {"STATUS": "open"}
   ]
 }
-\`\`\`
+```
 
 This matches TODOs that are (work OR personal) AND urgent AND open.
 
@@ -176,7 +176,7 @@ Sort options allow you to control the order and grouping of TODOs in the summary
 
 ### Basic Sorting
 
-\`\`\`json
+```json
 {
   "query": {...},
   "sortOptions": [
@@ -187,7 +187,7 @@ Sort options allow you to control the order and grouping of TODOs in the summary
     }
   ]
 }
-\`\`\`
+```
 
 - `sortLevel`: Defines the priority of this sort rule (1 is highest priority)
 - `sortBy`: Field to sort by (`category`, `tag`, `date`, `status`)
@@ -204,14 +204,14 @@ Sort options allow you to control the order and grouping of TODOs in the summary
 
 You can define a custom sort order for specific values:
 
-\`\`\`json
+```json
 {
   "sortLevel": "1",
   "sortBy": "category",
   "sortOrder": "custom",
   "sortOrderCustom": "work,study,fun,health"
 }
-\`\`\`
+```
 
 TODOs will be sorted according to the specified order. Any values not in the list appear at the end.
 
@@ -219,7 +219,7 @@ TODOs will be sorted according to the specified order. Any values not in the lis
 
 Apply multiple sort rules in sequence:
 
-\`\`\`json
+```json
 {
   "sortOptions": [
     {
@@ -236,7 +236,7 @@ Apply multiple sort rules in sequence:
     }
   ]
 }
-\`\`\`
+```
 
 This first sorts by category, then by tag within each category.
 
@@ -244,13 +244,13 @@ This first sorts by category, then by tag within each category.
 
 The `groupLevel` option controls how many sort levels create section headings:
 
-\`\`\`json
+```json
 {
   "query": {...},
   "sortOptions": [...],
   "groupLevel": 2
 }
-\`\`\`
+```
 
 - `groupLevel: 0`: No grouping, flat list of TODOs
 - `groupLevel: 1`: Creates # headers for the first sort level
@@ -259,7 +259,7 @@ The `groupLevel` option controls how many sort levels create section headings:
 
 ### Example with Grouping
 
-\`\`\`json
+```json
 {
   "query": {
     "STATUS": "open"
@@ -280,11 +280,11 @@ The `groupLevel` option controls how many sort levels create section headings:
   ],
   "groupLevel": 2
 }
-\`\`\`
+```
 
 This produces output like:
 
-\`\`\`markdown
+```markdown
 # work
 ## must
 - [ ] @work +must Task 1
@@ -299,13 +299,13 @@ This produces output like:
 
 ## maybe
 - [ ] @study +maybe Task 5
-\`\`\`
+```
 
 ## Complete Examples
 
 ### Example 1: Work TODOs by Priority
 
-\`\`\`json
+```json
 {
   "query": {
     "AND": [
@@ -323,11 +323,11 @@ This produces output like:
   ],
   "groupLevel": 1
 }
-\`\`\`
+```
 
 ### Example 2: Upcoming Deadlines from Multiple Categories
 
-\`\`\`json
+```json
 {
   "query": {
     "OR": [
@@ -350,11 +350,11 @@ This produces output like:
   ],
   "groupLevel": 0
 }
-\`\`\`
+```
 
 ### Example 3: Health and Fitness Tasks by Type
 
-\`\`\`json
+```json
 {
   "query": {
     "AND": [
@@ -372,11 +372,11 @@ This produces output like:
   ],
   "groupLevel": 1
 }
-\`\`\`
+```
 
 ### Example 4: Completed Tasks This Month
 
-\`\`\`json
+```json
 {
   "query": {
     "AND": [
@@ -403,15 +403,15 @@ This produces output like:
   ],
   "groupLevel": 1
 }
-\`\`\`
+```
 
 ## Migration from Simple Filter
 
 If you're currently using the simple notebook filter:
 
-\`\`\`markdown
+```markdown
 <!-- inline-todo-plugin "Work" "Personal" -->
-\`\`\`
+```
 
 This is still supported and will continue to work. The query summary format is an alternative that provides more advanced filtering capabilities.
 
