@@ -316,7 +316,7 @@ joplin.plugins.register({
 			}
 		});
 
-		await joplin.workspace.onNoteSelectionChange(async () => {
+		joplin.workspace.onNoteSelectionChange(async () => {
 			logger.info('Note selection changed - handler triggered');
 			const currentNote = await joplin.workspace.selectedNote();
 			logger.info(`Current note: ${currentNote ? currentNote.id : 'none'}`);
