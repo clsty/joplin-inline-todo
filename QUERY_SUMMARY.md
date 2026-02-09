@@ -8,8 +8,8 @@ The Query Summary Note feature extends the Joplin Inline TODO plugin with advanc
 
 To create a query summary note, add a JSON code block with the special tag `json:query-summary` to your note:
 
-```markdown
-\`\`\`json:query-summary
+````markdown
+```json:query-summary
 {
   "query": {
     "CATEGORY": "work"
@@ -23,8 +23,8 @@ To create a query summary note, add a JSON code block with the special tag `json
   ],
   "groupLevel": 1
 }
-\`\`\`
 ```
+````
 
 The plugin will automatically detect this format and generate the summary based on your query configuration.
 
@@ -50,7 +50,7 @@ Example matching TODO:
 
 Match TODOs that contain specific tags (e.g., `+urgent`, `+health`):
 
-\`\`\`json
+```json
 {
   "TAG": "urgent",
   "negated": false
