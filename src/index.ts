@@ -262,7 +262,7 @@ joplin.plugins.register({
 		await joplin.views.toolbarButtons.create(
 			"refreshQuerySummaryToolbarButton",
 			"inlineTodo.refreshQuerySummary",
-			ToolbarButtonLocation.EditorToolbar
+			ToolbarButtonLocation.NoteToolbar
 		);
 
 		// Function to update toolbar button visibility
