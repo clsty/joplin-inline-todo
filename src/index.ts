@@ -288,21 +288,26 @@ joplin.plugins.register({
 		};
 
 		await joplin.settings.onChange(async (event) => {
+			logger.info(`Settings changed: ${event.keys.join(', ')}`);
 			builder.settings = await getSettings();
 			
 			// If reload-related settings changed, update the current note's reload behavior
 			if (event.keys.includes('openReload') || event.keys.includes('reloadPeriodSecond')) {
+				logger.info('Reload settings changed, updating current note behavior');
 				const currentNote = await joplin.workspace.selectedNote();
 				if (currentNote && hasQuerySummary(currentNote.body)) {
 					// Use the already updated builder.settings
 					const settings = builder.settings;
+					logger.info(`New settings - openReload: ${settings.open_reload}, reloadPeriod: ${settings.reload_period_second}`);
 					
 					// Update periodic reload if configured
 					if (settings.reload_period_second && settings.reload_period_second > 0) {
+						logger.info(`Setting up periodic reload every ${settings.reload_period_second} seconds`);
 						setupPeriodicReload(currentNote.id, currentNote.body, settings.reload_period_second);
 					} else {
 						// Clear any existing timer for this note
 						if (reloadTimers.has(currentNote.id)) {
+							logger.info('Clearing existing timer');
 							clearInterval(reloadTimers.get(currentNote.id)!);
 							reloadTimers.delete(currentNote.id);
 						}
@@ -312,27 +317,36 @@ joplin.plugins.register({
 		});
 
 		await joplin.workspace.onNoteSelectionChange(async () => {
+			logger.info('Note selection changed - handler triggered');
 			const currentNote = await joplin.workspace.selectedNote();
+			logger.info(`Current note: ${currentNote ? currentNote.id : 'none'}`);
 
 			// Update toolbar button visibility
 			await updateToolbarVisibility();
 
 			if (currentNote) {
 				// Check if it's a query summary note
-				if (hasQuerySummary(currentNote.body)) {
+				const hasQuery = hasQuerySummary(currentNote.body);
+				logger.info(`Note has query summary: ${hasQuery}`);
+				
+				if (hasQuery) {
 					const settings = await getSettings();
+					logger.info(`Settings - openReload: ${settings.open_reload}, reloadPeriod: ${settings.reload_period_second}`);
 					
 					// Handle openReload (default is false)
 					if (settings.open_reload === true) {
+						logger.info('Triggering refresh on note open');
 						await refreshQuerySummaryNote(currentNote.id, currentNote.body);
 					}
 					
 					// Setup periodic reload if configured
 					if (settings.reload_period_second && settings.reload_period_second > 0) {
+						logger.info(`Setting up periodic reload every ${settings.reload_period_second} seconds`);
 						setupPeriodicReload(currentNote.id, currentNote.body, settings.reload_period_second);
 					} else {
 						// Clear any existing timer for this note
 						if (reloadTimers.has(currentNote.id)) {
+							logger.info('Clearing existing timer');
 							clearInterval(reloadTimers.get(currentNote.id)!);
 							reloadTimers.delete(currentNote.id);
 						}
@@ -340,6 +354,7 @@ joplin.plugins.register({
 				} else {
 					// Clear any existing timer if the note is not a query summary
 					if (reloadTimers.has(currentNote.id)) {
+						logger.info('Clearing timer for non-query note');
 						clearInterval(reloadTimers.get(currentNote.id)!);
 						reloadTimers.delete(currentNote.id);
 					}
