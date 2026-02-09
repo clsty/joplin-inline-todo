@@ -244,59 +244,8 @@ joplin.plugins.register({
 			);
 		}
 
-		// Add refresh command for query summaries
-		await joplin.commands.register({
-			name: "inlineTodo.refreshQuerySummary",
-			label: "Refresh Query Summary",
-			iconName: "fas fa-sync-alt",
-			execute: async () => {
-				const currentNote = await joplin.workspace.selectedNote();
-				if (!currentNote) return;
-				
-				await builder.search_in_all();
-				await update_summary(builder.summary, builder.settings, currentNote.id, currentNote.body);
-			}
-		});
-
-		// Create toolbar button for query summaries - visibility will be controlled dynamically
-		await joplin.views.toolbarButtons.create(
-			"refreshQuerySummaryToolbarButton",
-			"inlineTodo.refreshQuerySummary",
-			ToolbarButtonLocation.NoteToolbar
-		);
-
-		// Function to update toolbar button visibility
-		const updateToolbarVisibility = async () => {
-			const currentNote = await joplin.workspace.selectedNote();
-			if (currentNote) {
-				try {
-					const note = await joplin.data.get(['notes', currentNote.id], { fields: ['body'] });
-					const isQuerySummary = hasQuerySummary(note.body);
-					// Show query button only for query summaries
-					await joplin.views.toolbarButtons.setProperty(
-						"refreshQuerySummaryToolbarButton",
-						"visible",
-						isQuerySummary
-					);
-				} catch (error) {
-					// Note might not exist or error accessing it
-					await joplin.views.toolbarButtons.setProperty(
-						"refreshQuerySummaryToolbarButton",
-						"visible",
-						false
-					);
-				}
-			} else {
-				await joplin.views.toolbarButtons.setProperty(
-					"refreshQuerySummaryToolbarButton",
-					"visible",
-					false
-				);
-			}
-		};
-
-		// Initial visibility check
-		await updateToolbarVisibility();
+		// Note: Query summaries use the refresh button in the custom editor UI
+		// No separate toolbar button is needed
 
 		await joplin.settings.onChange(async (_) => {
 			builder.settings = await getSettings();
@@ -335,9 +284,6 @@ joplin.plugins.register({
 
 		await joplin.workspace.onNoteSelectionChange(async () => {
 			const currentNote = await joplin.workspace.selectedNote();
-
-			// Update toolbar button visibility
-			await updateToolbarVisibility();
 
 			if (currentNote) {
 				// Check if it's a query summary note
