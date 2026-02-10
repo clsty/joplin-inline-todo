@@ -10,11 +10,5 @@
 	"repository_url": "https://github.com/clsty/joplin-plugin-querytodo",
 	"keywords": ["todo", "productivity", "query"],
 	"categories": ["editor", "productivity"],
-	"platforms": ["desktop", "mobile"],
-	"icons": {
-		"16": "icons/16.png",
-		"32": "icons/32.png",
-		"48": "icons/48.png",
-		"128": "icons/128.png"
-	}
+	"platforms": ["desktop", "mobile"]
 }

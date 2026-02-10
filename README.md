@@ -13,12 +13,14 @@ Advanced TODO management for Joplin with JSON-based query summaries, filtering, 
 
 ## Installation
 
-Download `*.jpl` from [pre-release]() and install it from Joplin `Tools -> Options -> Plugins`, install from file and select this jpl file.
+**Recommended method:**
+1. Go to `Tools -> Options -> Plugins` (macOS: Joplin -> Preferences -> Plugins)
+2. Search for "Query TODO"
+3. Click Install and restart Joplin
+4. Create a query summary note: `Tools -> Create Query summary note`
 
-1. ~~Go to `Tools -> Options -> Plugins` (macOS: Joplin -> Preferences -> Plugins)~~
-2. ~~Search for "Query TODO"~~
-3. ~~Click Install and restart Joplin~~
-4. ~~Create a query summary note: `Tools -> Create Query summary note`~~
+**Alternative method:**
+Download `*.jpl` from [pre-release]() and install it from Joplin `Tools -> Options -> Plugins`, install from file and select this jpl file.
 
 ## Quick Start
 
