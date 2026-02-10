@@ -26,7 +26,7 @@ Download `*.jpl` from [pre-release]() and install it from Joplin `Tools -> Optio
 
 ### Basic TODO Format
 
-Use metalist style:
+Write inline TODO entries **everywhere** you want using the style like:
 ```markdown
 - [ ] @category +tag1 +tag2 //2026-02-15 Your TODO text here
 ```
@@ -36,8 +36,6 @@ Components:
 - `+tag` - Multiple tags (optional)
 - `//YYYY-MM-DD` - Due date (optional)  
 - Checkbox state: `[ ]` = open, `[x]` = done
-
-**Note:** This plugin only supports the metalist style. Other TODO formats (link style, plain style) from the original Inline TODOs plugin are not supported.
 
 ### Query Summary Note
 
@@ -63,6 +61,8 @@ Create with `Tools -> Create Query summary note`:
 }
 ```
 ````
+
+After reloading, the plugin will query your inline TODOs according to the config written in the `json:query-summary` block, and show the results above the block on this summary page (only for viewing, not editable).
 
 ## Query Configuration
 
