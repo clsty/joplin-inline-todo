@@ -323,19 +323,23 @@ function groupTodosByKey(todos: Todo[], sortBy: SortBy): Map<string, Todo[]> {
  * Template placeholders:
  * - {{{STATUS}}} -> [ ] or [x]
  * - {{{CATEGORY}}} -> @category
- * - {{{TAGS}}} -> +tag1 +tag2
+ * - {{{TAGS}}} -> +tag1 +tag2 (tags listed in hideTags are omitted)
  * - {{{DATE}}} -> //YYYY-MM-DD
  * - {{{CONTENT}}} -> the todo message
  * - {{{NOTE_ID}}} -> the note id
  * - {{{NOTE_TITLE}}} -> the note title
  * - {{{NOTEBOOK}}} -> the parent notebook
  */
-function formatTodo(todo: Todo, template?: string): string {
+function formatTodo(todo: Todo, template?: string, hideTags?: string[]): string {
+	const visibleTags = (todo.tags && hideTags && hideTags.length > 0)
+		? todo.tags.filter(t => !hideTags.includes(t))
+		: todo.tags;
+	
 	// Default template if not provided
 	if (!template) {
 		const checkbox = todo.completed ? '[x]' : '[ ]';
 		const category = todo.category ? `@${todo.category}` : '';
-		const tags = todo.tags ? todo.tags.map(t => `+${t}`).join(' ') : '';
+		const tags = visibleTags ? visibleTags.map(t => `+${t}`).join(' ') : '';
 		const date = todo.date ? `//${todo.date}` : '';
 		
 		const parts = [checkbox, category, tags, date, todo.msg].filter(p => p);
@@ -354,8 +358,8 @@ function formatTodo(todo: Todo, template?: string): string {
 	result = result.replace(/\{\{\{CATEGORY\}\}\}/g, category);
 	
 	// Replace TAGS
-	const tags = todo.tags && todo.tags.length > 0 
-		? todo.tags.map(t => `+${t}`).join(' ') 
+	const tags = visibleTags && visibleTags.length > 0 
+		? visibleTags.map(t => `+${t}`).join(' ') 
 		: '';
 	result = result.replace(/\{\{\{TAGS\}\}\}/g, tags);
 	
@@ -391,7 +395,7 @@ function formatTodo(todo: Todo, template?: string): string {
 /**
  * Generates the summary body from sorted and grouped todos
  */
-export function generateQuerySummaryBody(todos: Todo[], sortOptions: SortOption[], groupLevel: number, entryFormat?: string): string {
+export function generateQuerySummaryBody(todos: Todo[], sortOptions: SortOption[], groupLevel: number, entryFormat?: string, hideTags?: string[]): string {
 	if (todos.length === 0) {
 		return '# All done!\n\n';
 	}
@@ -401,7 +405,7 @@ export function generateQuerySummaryBody(todos: Todo[], sortOptions: SortOption[
 	
 	// If no grouping, just output all todos
 	if (!sortOptions || sortOptions.length === 0 || groupLevel < 1) {
-		return sortedTodos.map(todo => formatTodo(todo, entryFormat)).join('\n') + '\n';
+		return sortedTodos.map(todo => formatTodo(todo, entryFormat, hideTags)).join('\n') + '\n';
 	}
 	
 	// Group by levels
@@ -412,7 +416,7 @@ export function generateQuerySummaryBody(todos: Todo[], sortOptions: SortOption[
 	function buildHierarchy(todos: Todo[], level: number): string {
 		if (level > groupLevel || level > sortedOptions.length) {
 			// No more grouping, just list todos
-			return todos.map(todo => formatTodo(todo, entryFormat)).join('\n') + '\n';
+			return todos.map(todo => formatTodo(todo, entryFormat, hideTags)).join('\n') + '\n';
 		}
 		
 		const sortOption = sortedOptions[level - 1];

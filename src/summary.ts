@@ -52,7 +52,8 @@ async function updateQuerySummary(summary: Summary, settings: Settings, summary_
 		filteredTodos, 
 		config.sortOptions || [], 
 		config.groupLevel || 0,
-		entryFormat
+		entryFormat,
+		config.hideTags
 	);
 	
 	await setQuerySummaryBody(summaryBody, summary_id, old_body, settings, config);

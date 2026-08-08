@@ -650,6 +650,54 @@ Some other content`;
 			expect(body).toContain('+important');
 		});
 
+		test('hides tags listed in hideTags from output', () => {
+			const todos = [
+				createTodo({ category: 'work', tags: ['TODO', 'urgent'], msg: 'Task', completed: false }),
+			];
+
+			const body = generateQuerySummaryBody(todos, [], 0, undefined, ['TODO']);
+
+			expect(body).not.toContain('+TODO');
+			expect(body).toContain('+urgent');
+		});
+
+		test('hides tags in custom entryFormat TAGS placeholder', () => {
+			const todos = [
+				createTodo({ tags: ['TODO', 'urgent'], msg: 'Task', completed: false }),
+			];
+
+			const body = generateQuerySummaryBody(
+				todos, [], 0, '- {{{STATUS}}} {{{TAGS}}} {{{CONTENT}}}', ['TODO']);
+
+			expect(body).not.toContain('+TODO');
+			expect(body).toContain('+urgent');
+			expect(body).toContain('Task');
+		});
+
+		test('hideTags matching is exact and case-sensitive', () => {
+			const todos = [
+				createTodo({ tags: ['todo', 'TODO'], msg: 'Task', completed: false }),
+			];
+
+			const body = generateQuerySummaryBody(todos, [], 0, undefined, ['TODO']);
+
+			expect(body).toContain('+todo');
+			expect(body).not.toContain('+TODO');
+		});
+
+		test('output is unchanged when hideTags is omitted or empty', () => {
+			const todos = [
+				createTodo({ tags: ['TODO', 'urgent'], msg: 'Task', completed: false }),
+			];
+
+			const withUndefined = generateQuerySummaryBody(todos, [], 0, undefined, undefined);
+			const withEmpty = generateQuerySummaryBody(todos, [], 0, undefined, []);
+
+			expect(withUndefined).toContain('+TODO');
+			expect(withUndefined).toContain('+urgent');
+			expect(withEmpty).toEqual(withUndefined);
+		});
+
 		test('includes date in output', () => {
 			const todos = [
 				createTodo({ category: 'work', date: '2026-01-23', msg: 'Task', completed: false }),
