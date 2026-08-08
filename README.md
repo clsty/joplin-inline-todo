@@ -101,6 +101,22 @@ Customize TODO display with placeholders:
 - `{{{NOTE_TITLE}}}` - Source note title
 - `{{{NOTEBOOK}}}` - Parent notebook name
 
+### Hiding tags
+
+When filtering by a tag, you may not want that tag repeated on every entry.
+The optional `hideTags` array omits the listed tags from the tag output
+(`{{{TAGS}}}` and the default format). Other tags are still shown.
+
+````markdown
+```json:query-summary
+{
+  "query": {"TAG": "TODO"},
+  "hideTags": ["TODO"],
+  "entryFormat": "- {{{STATUS}}} {{{TAGS}}} {{{CONTENT}}}"
+}
+```
+````
+
 ## Plugin Settings
 
 Access via `Tools -> Options -> Query TODO`
