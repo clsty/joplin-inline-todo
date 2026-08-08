@@ -234,6 +234,8 @@ function getSortKey(todo: Todo, sortBy: SortBy): string | number {
 		case 'tag':
 			// For tag, use the first tag or empty string
 			return (todo.tags && todo.tags.length > 0) ? todo.tags[0] : '';
+		case 'notebook':
+			return todo.parent_title || '';
 		default:
 			return '';
 	}

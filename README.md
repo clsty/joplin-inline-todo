@@ -84,7 +84,7 @@ All queries support `negated: true` to invert the match.
 
 ### Sorting
 
-Sort by `category`, `tag`, `date`, or `status` with:
+Sort by `category`, `tag`, `date`, `status`, or `notebook` (parent notebook name) with:
 - `ascend` - Ascending order
 - `descend` - Descending order
 - `custom` - Custom order with `sortOrderCustom: "val1,val2,val3"`
@@ -152,6 +152,19 @@ Access via `Tools -> Options -> Query TODO`
     {"sortLevel": "2", "sortBy": "date", "sortOrder": "ascend"}
   ],
   "groupLevel": 2
+}
+```
+
+### Group open TODOs by notebook
+
+```
+{
+  "query": {"STATUS": "open"},
+  "sortOptions": [
+    {"sortLevel": "1", "sortBy": "notebook", "sortOrder": "ascend"}
+  ],
+  "groupLevel": 1,
+  "entryFormat": "- {{{STATUS}}} {{{CONTENT}}} [link](:/{{{NOTE_ID}}})"
 }
 ```
 

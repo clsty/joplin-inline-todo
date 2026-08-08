@@ -194,7 +194,7 @@ export interface OrQuery {
 
 export type QueryItem = CategoryQuery | TagQuery | NoteQuery | NotebookQuery | StatusQuery | AndQuery | OrQuery;
 
-export type SortBy = 'tag' | 'category' | 'date' | 'status';
+export type SortBy = 'tag' | 'category' | 'date' | 'status' | 'notebook';
 export type SortOrder = 'ascend' | 'descend' | 'custom';
 
 export interface SortOption {

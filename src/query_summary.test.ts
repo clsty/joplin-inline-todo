@@ -529,6 +529,28 @@ Some other content`;
 			expect(sorted[1].completed).toBe(false);
 		});
 
+		test('sorts by notebook ascending', () => {
+			const todos = [
+				createTodo({ parent_title: 'Work', msg: 'Work task' }),
+				createTodo({ parent_title: 'Personal', msg: 'Personal task' }),
+				createTodo({ parent_title: 'Archive', msg: 'Archive task' }),
+			];
+
+			const sortOptions: SortOption[] = [
+				{
+					sortLevel: '1',
+					sortBy: 'notebook',
+					sortOrder: 'ascend',
+				},
+			];
+
+			const sorted = sortTodosByOptions(todos, sortOptions);
+
+			expect(sorted[0].parent_title).toBe('Archive');
+			expect(sorted[1].parent_title).toBe('Personal');
+			expect(sorted[2].parent_title).toBe('Work');
+		});
+
 		test('sorts with multiple levels', () => {
 			const todos = [
 				createTodo({ category: 'work', tags: ['should'], msg: 'Work should' }),
@@ -627,6 +649,32 @@ Some other content`;
 			expect(body).toContain('## urgent');
 			expect(body).toContain('# work');
 			expect(body).toContain('## later');
+		});
+
+		test('generates output grouped by notebook', () => {
+			const todos = [
+				createTodo({ parent_title: 'Work', msg: 'Task 1', completed: false }),
+				createTodo({ parent_title: 'Work', msg: 'Task 2', completed: false }),
+				createTodo({ parent_title: 'Personal', msg: 'Task 3', completed: false }),
+			];
+
+			const sortOptions: SortOption[] = [
+				{
+					sortLevel: '1',
+					sortBy: 'notebook',
+					sortOrder: 'ascend',
+				},
+			];
+
+			const body = generateQuerySummaryBody(todos, sortOptions, 1, '- {{{STATUS}}} {{{CONTENT}}}');
+
+			const personalIndex = body.indexOf('# Personal');
+			const workIndex = body.indexOf('# Work');
+			expect(personalIndex).toBeGreaterThanOrEqual(0);
+			expect(workIndex).toBeGreaterThanOrEqual(0);
+			expect(personalIndex).toBeLessThan(workIndex);
+			expect(body).toContain('- [ ] Task 1');
+			expect(body).toContain('- [ ] Task 3');
 		});
 
 		test('formats completed todos correctly', () => {
